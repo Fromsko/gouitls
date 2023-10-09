@@ -14,12 +14,13 @@ type SendRequest struct {
 	Name     string
 	Method   string
 	FetchURL string
-	Data     url.Values
+	Data     io.Reader
+	From     url.Values
 	Cookies  []*http.Cookie
 	Headers  map[string]string
 }
 
-func (s *SendRequest) Send(callBack func([]byte, []*http.Cookie, error)) {
+func (s *SendRequest) Send(callBack func(resp []byte, cookies []*http.Cookie, err error)) {
 	Method := strings.ToUpper(s.Method)
 
 	if s.Headers == nil {
@@ -28,11 +29,9 @@ func (s *SendRequest) Send(callBack func([]byte, []*http.Cookie, error)) {
 		}
 	}
 
-	color.Green("正在发送 " + s.Method + " 请求!")
-
 	switch Method {
 	case "POST":
-		callBack(WebPost(s.FetchURL, s.Headers, s.Cookies, s.Data))
+		callBack(WebPost(s.FetchURL, s.Headers, s.Cookies, s.From, s.Data))
 	case "GET":
 		fallthrough
 	default:
@@ -92,12 +91,21 @@ func WebGet(urlStr string, headers map[string]string, cookies []*http.Cookie) ([
 	return body, resp.Cookies(), nil
 }
 
-func WebPost(urlStr string, headers map[string]string, cookies []*http.Cookie, data url.Values) ([]byte, []*http.Cookie, error) {
+func WebPost(urlStr string, headers map[string]string, cookies []*http.Cookie, from_ url.Values, data io.Reader) ([]byte, []*http.Cookie, error) {
 	client := &http.Client{}
+	var req *http.Request
+	var err error
 
-	req, err := http.NewRequest("POST", urlStr, nil)
-	if err != nil {
-		return nil, nil, err
+	if from_ == nil {
+		if req, err = http.NewRequest("POST", urlStr, data); err != nil {
+			return nil, nil, err
+		}
+	} else {
+		if req, err = http.NewRequest("POST", urlStr, nil); err != nil {
+			return nil, nil, err
+		}
+		// 设置 POST 数据
+		req.PostForm = from_
 	}
 
 	// 设置 headers
@@ -110,13 +118,11 @@ func WebPost(urlStr string, headers map[string]string, cookies []*http.Cookie, d
 		req.AddCookie(cookie)
 	}
 
-	// 设置 POST 数据
-	req.PostForm = data
-
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, nil, err
 	}
+
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
