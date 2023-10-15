@@ -11,10 +11,15 @@ import (
 
 // FileMonitor 是文件监控组件的结构体
 type FileMonitor struct {
-	Path         string        // 监控的文件/目录路径
-	Immediate    bool          // 是否立即执行命令
-	Delay        time.Duration // 执行命令的延时
-	OnFileChange func()        // 文件变化时的回调函数
+	Path         string                // 监控的文件/目录路径
+	Delay        time.Duration         // 执行命令的延时
+	OnFileChange func(fm *FileMonitor) // 文件变化时的回调函数
+	*ProcessInfo
+}
+
+type ProcessInfo struct {
+	PreviousProcess *os.Process    // 上一次启动的进程
+	Event           fsnotify.Event // 监听事件
 }
 
 // Start 启动文件监控服务
@@ -42,33 +47,39 @@ func (fm *FileMonitor) Start() {
 		log.Fatal(err)
 	}
 
-	for {
-		select {
-		case event := <-watcher.Events:
-			if event.Op&fsnotify.Write == fsnotify.Write {
-				log.Println("File modified:", event.Name)
-
-				if fm.Immediate {
-					go fm.OnFileChange()
-				} else {
-					go func() {
-						time.Sleep(fm.Delay)
-						fm.OnFileChange()
-					}()
+Tab:
+	select {
+	case event := <-watcher.Events:
+		if event.Op&fsnotify.Write == fsnotify.Write {
+			fm.Event = event
+			// 在每次文件变化时终止上一个进程
+			if fm.PreviousProcess != nil {
+				_, err := fm.PreviousProcess.Wait()
+				// err := fm.PreviousProcess.Kill()
+				if err != nil {
+					log.Println("Error killing previous process:", err)
 				}
 			}
-		case err := <-watcher.Errors:
-			log.Println("Error watching files:", err)
+			go func() {
+				time.Sleep(fm.Delay)
+				fm.OnFileChange(fm)
+			}()
+			goto Tab
 		}
+	case err := <-watcher.Errors:
+		log.Println("Error watching files:", err)
 	}
 }
 
 // NewFileMonitor 创建一个新的文件监控组件
-func NewFileMonitor(path string, immediate bool, delay time.Duration, onFileChange func()) *FileMonitor {
+func NewFileMonitor(path string, onFileChange func(fm *FileMonitor)) *FileMonitor {
 	return &FileMonitor{
 		Path:         path,
-		Immediate:    immediate,
-		Delay:        delay,
+		Delay:        5 * time.Second,
 		OnFileChange: onFileChange,
+		ProcessInfo: &ProcessInfo{
+			Event:           fsnotify.Event{},
+			PreviousProcess: nil,
+		},
 	}
 }
