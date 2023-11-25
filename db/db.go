@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/Fromsko/gouitls/logs"
-	"github.com/go-redis/redis/v9"
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
