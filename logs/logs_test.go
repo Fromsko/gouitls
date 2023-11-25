@@ -10,7 +10,7 @@ import (
 
 func TestSpiderErrorMethods(t *testing.T) {
 	// Initialize SpiderError with an empty message
-	err := &SpiderError{msg: ""}
+	err := &ErrorLog{msg: ""}
 
 	// Redirect color output for testing
 	var output bytes.Buffer

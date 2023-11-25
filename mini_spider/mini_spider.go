@@ -9,7 +9,7 @@ import (
 	"github.com/gocolly/colly"
 )
 
-var log = logs.BaseLog
+var log = logs.NewDefaultLog()
 
 type BaseSpider struct {
 	Name      string

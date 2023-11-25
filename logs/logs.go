@@ -1,18 +1,17 @@
 package logs
 
 import (
-	"strings"
 	"fmt"
+	"strings"
+
 	"github.com/fatih/color"
 	"github.com/sirupsen/logrus"
 )
 
-type SpiderError struct {
-	msg string
-}
+type ErrorLog struct{ msg string }
 
 // Info
-func (err *SpiderError) InfoMsg(msgs ...string) {
+func (err *ErrorLog) InfoMsg(msgs ...string) {
 	color.Green(
 		"[INFO] %s",
 		choiceValue(err.msg, msgs),
@@ -20,7 +19,7 @@ func (err *SpiderError) InfoMsg(msgs ...string) {
 }
 
 // WarnMsg
-func (err *SpiderError) WarnMsg(msgs ...string) {
+func (err *ErrorLog) WarnMsg(msgs ...string) {
 	color.Yellow(
 		"[WARN] %s",
 		choiceValue(err.msg, msgs),
@@ -28,7 +27,7 @@ func (err *SpiderError) WarnMsg(msgs ...string) {
 }
 
 // DebugMsg
-func (err *SpiderError) DebugMsg(msgs ...string) {
+func (err *ErrorLog) DebugMsg(msgs ...string) {
 	color.Blue(
 		"[DEBUG] %s",
 		choiceValue(err.msg, msgs),
@@ -36,7 +35,7 @@ func (err *SpiderError) DebugMsg(msgs ...string) {
 }
 
 // ErrorMsg
-func (err *SpiderError) ErrorMsg(msgs ...string) {
+func (err *ErrorLog) ErrorMsg(msgs ...string) {
 	color.Red(
 		"[Error] %s",
 		choiceValue(err.msg, msgs),
@@ -60,6 +59,9 @@ func choiceValue(a, b any) (tmp string) {
 	return a.(string)
 }
 
+func NewDefaultLog() *ErrorLog {
+	return &ErrorLog{}
+}
 
 // CustomText 自定义的日志格式
 type CustomText struct{}
