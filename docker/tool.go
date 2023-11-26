@@ -10,7 +10,7 @@ import (
 	"github.com/docker/docker/api/types"
 )
 
-func (d *Dash) hasImage() (bool, error) {
+func (d *Dash) HasImage() (bool, error) {
 
 	images, err := d.DockerDasher.Client.ImageList(
 		d.DockerDasher.Context,
@@ -29,7 +29,7 @@ func (d *Dash) hasImage() (bool, error) {
 	return false, nil
 }
 
-func (d *Dash) pullImage(imgName string) error {
+func (d *Dash) PullImage(imgName string) error {
 
 	if !strings.Contains(imgName, ":") {
 		imgName = imgName + ":latest"
@@ -55,7 +55,7 @@ func (d *Dash) pullImage(imgName string) error {
 }
 
 // monitorContainerLogs 监控容器日志
-func (d *Dash) monitorContainerLogs() {
+func (d *Dash) MonitorContainerLogs() {
 
 	out, err := d.DockerDasher.Client.ContainerLogs(
 		d.DockerDasher.Context,

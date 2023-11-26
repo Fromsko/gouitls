@@ -4,13 +4,13 @@ import "time"
 
 // PullAndRunAlpine 拉取并运行 Alpine 容器
 func PullAndRunAlpine(d *Dash) error {
-	hasAlpine, err := d.hasImage()
+	hasAlpine, err := d.HasImage()
 	if err != nil {
 		return err
 	}
 
 	if !hasAlpine {
-		if err := d.pullImage(d.DockerDasher.Image); err != nil {
+		if err := d.PullImage(d.DockerDasher.Image); err != nil {
 			return err
 		}
 	}
@@ -21,7 +21,7 @@ func PullAndRunAlpine(d *Dash) error {
 		return err
 	} else {
 		// 启动监控日志的协程
-		go d.monitorContainerLogs()
+		go d.MonitorContainerLogs()
 	}
 
 	// 等待一段时间，模拟容器运行
