@@ -31,8 +31,8 @@ jobs:
       - name: Get new version from file
         id: get_new_version
         run: |
-          new_version=$(cat version)
-          echo "::set-output name=new_version::$new_version"
+          new_version=v$(cat version)
+          echo "new_version=${new_version}" >> $GITHUB_STATE
         shell: bash
 
       - name: Create Git Tag
@@ -53,7 +53,7 @@ jobs:
         run: |
           new_version="${{ steps.get_new_version.outputs.new_version }}"
           changelog=$(git log ${new_version}..HEAD --oneline --pretty=format:"- %s")
-          echo "::set-output name=changelog::$changelog"
+          echo "changelog=${changelog}" >> $GITHUB_STATE
         shell: bash
 
       - name: Create GitHub Release
