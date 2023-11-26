@@ -1,9 +1,9 @@
-name: Release
+name: AutoChan
 
 on:
   push:
-    branches:
-      - master
+    paths:
+      - 'version'
 
 jobs:
   release:
@@ -13,56 +13,72 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Check if Version has changed
+        id: version_changed
+        run: |
+          if [ -n "$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'version')" ]; then
+            echo "::set-output name=changed::true"
+          else
+            echo "::set-output name=changed::false"
+          fi
+        shell: bash
+
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.21 # 根据你的项目需要设置 Go 版本
 
-      - name: Increase version
+      - name: Get latest tag
+        id: get_latest_tag
         run: |
-          # 获取当前的模块版本
-          current_version=$(go list -m -f '{{.Version}}')
-      
-          # 增加版本号，这里示例中将版本号增加为 v2.0.0，你可以根据需要自定义版本号规则
-          new_version="v2.0.0"
-      
-          # 更新模块版本
-          go mod edit -require "github.com/Fromsko/gouitls@${new_version}"
-      
-          # 提交修改后的 go.mod 文件
-          git add go.mod
-          git commit -m "Bump version to ${new_version}"
-      
-          # 推送更改到远程仓库
-          git push origin main
-
-
+          latest_tag=$(git describe --tags --abbrev=0)
+          echo "::set-output name=latest_tag::$latest_tag"
+        shell: bash
 
       - name: Generate changelog
-        run: ./generate-changelog.sh # 替换为生成更新日志的脚本
+        id: generate_changelog
+        run: |
+          latest_tag="${{ steps.get_latest_tag.outputs.latest_tag }}"
+          changelog=$(git log ${latest_tag}..HEAD --oneline --pretty=format:"- %s")
+          echo "::set-output name=changelog::$changelog"
+        shell: bash
 
       - name: Create GitHub Release
         id: create_release
+        if: steps.version_changed.outputs.changed == 'true'
         run: |
           echo "Creating GitHub release..."
 
-          # 获取最新的标签
-          latest_tag=$(git describe --tags --abbrev=0)
+          # 获取新的版本号
+          new_version=$(cat version)
 
-          # 生成更新日志内容（示例）
-          changelog=$(git log ${latest_tag}..HEAD --oneline --pretty=format:"- %s")
+          # 获取最新的标签
+          latest_tag="${{ steps.get_latest_tag.outputs.latest_tag }}"
+
+          # 生成更新日志内容
+          changelog="${{ steps.generate_changelog.outputs.changelog }}"
 
           # 创建 GitHub Release
           release_id=$(curl -X POST "https://api.github.com/repos/${{ github.repository }}/releases" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -d '{
-              "tag_name": "'"$latest_tag"'",
-              "name": "Release '"$latest_tag"'",
+              "tag_name": "'"$new_version"'",
+              "name": "Release '"$new_version"'",
               "body": "'"$changelog"'",
               "draft": false,
               "prerelease": false
             }' | jq -r '.id')
 
           echo "GitHub release created with ID: $release_id"
+
+          # 打包源码文件，例如将项目文件打包成 tar.gz 或 zip 文件
+          tar -czf source-code-${new_version}.tar.gz .
+          # 也可以使用 zip 命令，视项目需要而定
+
+          # 将源码包上传到 GitHub Release
+          curl -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/${release_id}/assets?name=source-code-${new_version}.tar.gz" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            --header "Content-Type: application/octet-stream" \
+            --upload-file source-code-${new_version}.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
