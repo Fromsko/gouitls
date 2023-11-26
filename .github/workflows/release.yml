@@ -1,4 +1,4 @@
-name: AutoChan
+name: AutoChange
 
 on:
   push:
