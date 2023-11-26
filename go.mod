@@ -24,6 +24,7 @@ require (
 )
 
 require (
+	github.com/Fromsko/gouitls 0.0.7
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/PuerkitoBio/goquery v1.8.1 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
