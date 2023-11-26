@@ -31,7 +31,7 @@ jobs:
       - name: Get new version from file
         id: get_new_version
         run: |
-          new_version=v$(cat version)
+          new_version=$(cat version)
           echo "new_version=${new_version}" >> $GITHUB_STATE
         shell: bash
 
