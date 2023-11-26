@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17 # 根据你的项目需要设置 Go 版本
+
+      - name: Increase version
+        run: go mod bump
+
+      - name: Generate changelog
+        run: ./generate-changelog.sh # 替换为生成更新日志的脚本
+
+      - name: Create GitHub Release
+        id: create_release
+        run: |
+          echo "Creating GitHub release..."
+
+          # 获取最新的标签
+          latest_tag=$(git describe --tags --abbrev=0)
+
+          # 生成更新日志内容（示例）
+          changelog=$(git log ${latest_tag}..HEAD --oneline --pretty=format:"- %s")
+
+          # 创建 GitHub Release
+          release_id=$(curl -X POST "https://api.github.com/repos/${{ github.repository }}/releases" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -d '{
+              "tag_name": "'"$latest_tag"'",
+              "name": "Release '"$latest_tag"'",
+              "body": "'"$changelog"'",
+              "draft": false,
+              "prerelease": false
+            }' | jq -r '.id')
+
+          echo "GitHub release created with ID: $release_id"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
