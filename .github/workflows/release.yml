@@ -35,6 +35,19 @@ jobs:
           echo "::set-output name=new_version::$new_version"
         shell: bash
 
+      - name: Create Git Tag
+        id: create_git_tag
+        if: steps.version_changed.outputs.changed == 'true'
+        run: |
+          # 获取新的版本号
+          new_version="${{ steps.get_new_version.outputs.new_version }}"
+
+          # 创建 Git 标签
+          git tag -a "$new_version" -m "Version $new_version"
+          git push origin "$new_version"
+
+        shell: bash
+
       - name: Generate changelog
         id: generate_changelog
         run: |
