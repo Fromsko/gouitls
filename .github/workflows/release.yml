@@ -28,18 +28,18 @@ jobs:
         with:
           go-version: 1.21 # 根据你的项目需要设置 Go 版本
 
-      - name: Get latest tag
-        id: get_latest_tag
+      - name: Get new version from file
+        id: get_new_version
         run: |
-          latest_tag=$(git describe --tags --abbrev=0 --tags)
-          echo "::set-output name=latest_tag::$latest_tag"
+          new_version=$(cat version)
+          echo "::set-output name=new_version::$new_version"
         shell: bash
 
       - name: Generate changelog
         id: generate_changelog
         run: |
-          latest_tag="${{ steps.get_latest_tag.outputs.latest_tag }}"
-          changelog=$(git log ${latest_tag}..HEAD --oneline --pretty=format:"- %s")
+          new_version="${{ steps.get_new_version.outputs.new_version }}"
+          changelog=$(git log ${new_version}..HEAD --oneline --pretty=format:"- %s")
           echo "::set-output name=changelog::$changelog"
         shell: bash
 
@@ -50,10 +50,7 @@ jobs:
           echo "Creating GitHub release..."
 
           # 获取新的版本号
-          new_version=$(cat version)
-
-          # 获取最新的标签
-          latest_tag="${{ steps.get_latest_tag.outputs.latest_tag }}"
+          new_version="${{ steps.get_new_version.outputs.new_version }}"
 
           # 生成更新日志内容
           changelog="${{ steps.generate_changelog.outputs.changelog }}"
