@@ -19,22 +19,23 @@ jobs:
           go-version: 1.21 # 根据你的项目需要设置 Go 版本
 
       - name: Increase version
-      run: |
-        # 获取当前的模块版本
-        current_version=$(go list -m -f '{{.Version}}')
+        run: |
+          # 获取当前的模块版本
+          current_version=$(go list -m -f '{{.Version}}')
+      
+          # 增加版本号，这里示例中将版本号增加为 v2.0.0，你可以根据需要自定义版本号规则
+          new_version="v2.0.0"
+      
+          # 更新模块版本
+          go mod edit -require "github.com/Fromsko/gouitls@${new_version}"
+      
+          # 提交修改后的 go.mod 文件
+          git add go.mod
+          git commit -m "Bump version to ${new_version}"
+      
+          # 推送更改到远程仓库
+          git push origin main
 
-        # 增加版本号，这里示例中将版本号增加为 v2.0.0，你可以根据需要自定义版本号规则
-        new_version="v2.0.0"
-
-        # 更新模块版本
-        go mod edit -require "github.com/Fromsko/gouitls@${new_version}"
-
-        # 提交修改后的 go.mod 文件
-        git add go.mod
-        git commit -m "Bump version to ${new_version}"
-
-        # 推送更改到远程仓库
-        git push origin main
 
 
       - name: Generate changelog
