@@ -1,4 +1,4 @@
-package docker
+package test
 
 import (
 	"github.com/docker/docker/api/types"

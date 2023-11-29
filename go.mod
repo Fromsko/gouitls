@@ -18,7 +18,8 @@ require (
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/stretchr/testify v1.8.1 // indirect
+	github.com/panjf2000/ants/v2 v2.9.0 // indirect
+	github.com/stretchr/testify v1.8.2 // indirect
 	golang.org/x/sync v0.3.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
