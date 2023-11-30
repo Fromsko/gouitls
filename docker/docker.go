@@ -111,30 +111,32 @@ func (at *AutoTask) WithVolumeMappings(volumeMappings []VolumeMapping) *AutoTask
 	return at
 }
 
-// ContainerExists 检测是否存在指定容器名称，存在返回 false，否则返回 true
-func (at *AutoTask) ContainerExists(containerName string) bool {
+// ContainerExists 检测是否存在指定容器名称
+func (at *AutoTask) ContainerExists(callBack func()) {
+	flag := true
+
 	listOptions := types.ContainerListOptions{
 		All: true, // 包括停止的容器
 	}
 
 	containers, err := at.cli.ContainerList(at.ctx, listOptions)
 	if err != nil {
-		log.Errorf("无法获取容器列表：%v", err)
-		return true // 发生错误时返回 true
-	}
-
-	for _, container := range containers {
-		for _, name := range container.Names {
-			if strings.TrimLeft(name, "/") == containerName {
-				log.Warnf("容器存在 => %v", strings.Split(container.Names[0], "/")[1])
-				log.Warnf("容器状态 => %v", container.Status)
-				log.Warnf("容器ID => %v", container.ID)
-				return false // 存在指定名称的容器，返回 false
+		log.Errorf("无法获取容器列表：%v", err) // 发生错误时返回 true
+	} else {
+		for _, container := range containers {
+			for _, name := range container.Names {
+				if strings.TrimLeft(name, "/") == at.opt.ContainerName {
+					log.Warnf("容器存在 => %v", strings.Split(container.Names[0], "/")[1])
+					log.Warnf("容器状态 => %v", container.Status)
+					log.Warnf("容器ID => %v", container.ID)
+					flag = false // 存在指定名称的容器，返回 false
+				}
 			}
 		}
 	}
-
-	return true // 不存在指定名称的容器，返回 true
+	if flag {
+		callBack() // 不存在指定名称的容器，返回 true
+	}
 }
 
 func (at *AutoTask) checkNetwork() bool {
