@@ -2,6 +2,7 @@ package logs
 
 import (
 	"fmt"
+	"runtime"
 	"strings"
 
 	"github.com/fatih/color"
@@ -70,6 +71,12 @@ func (f *CustomText) Format(entry *logrus.Entry) ([]byte, error) {
 	timestamp := entry.Time.Format("2006-01-02 15:04:05")
 	level := entry.Level.String()
 	callerInfo := entry.Message
+
+	// 获取当前文件名和行号
+	_, file, line, ok := runtime.Caller(1)
+	if ok {
+		callerInfo = fmt.Sprintf("%s:%d | %s", file, line, callerInfo)
+	}
 
 	// 手动设置颜色
 	var levelColor int
