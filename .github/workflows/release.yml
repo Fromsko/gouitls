@@ -27,39 +27,44 @@ jobs:
           new_version="${{ env.new_version }}"
         shell: bash
 
-      - name: Create GitHub Release
-        id: create_release
-        run: |
-          echo "正在创建最新版本"
+      - name: Create release on GitHub
+        uses: docker://goreleaser/goreleaser:latest
+        with:
+          args: release
 
-          echo "获取新的版本号"
-          new_version="${{ env.new_version }}"
-          echo "${new_version}"
+      # - name: Create GitHub Release
+      #   id: create_release
+      #   run: |
+      #     echo "正在创建最新版本"
 
-          # 生成更新日志内容
-          changelog="${{ steps.generate_changelog.outputs.changelog }}"
+      #     echo "获取新的版本号"
+      #     new_version="${{ env.new_version }}"
+      #     echo "${new_version}"
 
-          # 创建 GitHub Release
-          release_id=$(curl -X POST "https://api.github.com/repos/${{ github.repository }}/releases" \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -d '{
-              "tag_name": "'"$new_version"'",
-              "name": "Release '"$new_version"'",
-              "body": "'"$changelog"'",
-              "draft": false,
-              "prerelease": false
-            }' | jq -r '.id')
+      #     # 生成更新日志内容
+      #     changelog="${{ steps.generate_changelog.outputs.changelog }}"
 
-          echo "GitHub release created with ID: $release_id"
+      #     # 创建 GitHub Release
+      #     release_id=$(curl -X POST "https://api.github.com/repos/${{ github.repository }}/releases" \
+      #       -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+      #       -d '{
+      #         "tag_name": "'"$new_version"'",
+      #         "name": "Release '"$new_version"'",
+      #         "body": "'"$changelog"'",
+      #         "draft": false,
+      #         "prerelease": false
+      #       }' | jq -r '.id')
 
-          # 打包源码文件，例如将项目文件打包成 tar.gz 或 zip 文件
-          tar -czf source-code-${new_version}.tar.gz .
-          # 也可以使用 zip 命令，视项目需要而定
+      #     echo "GitHub release created with ID: $release_id"
 
-          # 将源码包上传到 GitHub Release
-          curl -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/${release_id}/assets?name=source-code-${new_version}.tar.gz" \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            --header "Content-Type: application/octet-stream" \
-            --upload-file source-code-${new_version}.tar.gz
+      #     # 打包源码文件，例如将项目文件打包成 tar.gz 或 zip 文件
+      #     tar -czf source-code-${new_version}.tar.gz .
+      #     # 也可以使用 zip 命令，视项目需要而定
+
+      #     # 将源码包上传到 GitHub Release
+      #     curl -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/${release_id}/assets?name=source-code-${new_version}.tar.gz" \
+      #       -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+      #       --header "Content-Type: application/octet-stream" \
+      #       --upload-file source-code-${new_version}.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
