@@ -21,7 +21,8 @@ jobs:
       - name: Get new version from file
         id: get_new_version
         run: |
-          new_version=$(cat ./version.ini)
+          echo "${pwd}"
+          new_version=$(cat $pwd/version.ini)
           echo "new_version=${new_version}" >> $GITHUB_ENV
           echo "New version: ${new_version}" # 添加这行打印新版本号
         shell: bash
