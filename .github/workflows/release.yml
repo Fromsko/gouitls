@@ -2,8 +2,8 @@ name: AutoChange
 
 on:
   push:
-    paths:
-      - 'version'
+    branches:
+      - main
 
 jobs:
   release:
@@ -12,16 +12,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Check if Version has changed
-        id: version_changed
-        run: |
-          if [ -n "$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'version')" ]; then
-            echo "::set-output name=changed::true"
-          else
-            echo "::set-output name=changed::false"
-          fi
-        shell: bash
 
       - name: Set up Go
         uses: actions/setup-go@v2
@@ -32,12 +22,11 @@ jobs:
         id: get_new_version
         run: |
           new_version=$(cat version)
-          echo "new_version=${new_version}" >> $GITHUB_STATE
+          echo "new_version=${new_version}" >> $GITHUB_ENV
         shell: bash
 
       - name: Create Git Tag
         id: create_git_tag
-        if: steps.version_changed.outputs.changed == 'true'
         run: |
           # 获取新的版本号
           new_version="${{ steps.get_new_version.outputs.new_version }}"
@@ -53,12 +42,11 @@ jobs:
         run: |
           new_version="${{ steps.get_new_version.outputs.new_version }}"
           changelog=$(git log ${new_version}..HEAD --oneline --pretty=format:"- %s")
-          echo "changelog=${changelog}" >> $GITHUB_STATE
+          echo "changelog=${changelog}" >> $GITHUB_ENV
         shell: bash
 
       - name: Create GitHub Release
         id: create_release
-        if: steps.version_changed.outputs.changed == 'true'
         run: |
           echo "正在创建最新版本"
 
