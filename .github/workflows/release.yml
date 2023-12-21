@@ -20,12 +20,12 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.21 # 根据你的项目需要设置 Go 版本
+          go-version: 1.21
 
-      - name: 发布release
-        uses: docker://goreleaser/goreleaser:latest
-        with:
-          args: release
+      # - name: 发布release
+      #   uses: docker://goreleaser/goreleaser:latest
+      #   with:
+      #     args: release
     
       - name: 初始化Git
         run: |
