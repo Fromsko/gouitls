@@ -25,6 +25,6 @@ jobs:
         with:
           distribution: goreleaser
           version: latest
-          args: release --snapshot --skip-validate --skip-build --skip-publish-notes
+          args: release --snapshot --skip-validate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
