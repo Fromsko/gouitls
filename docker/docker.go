@@ -107,7 +107,7 @@ func (at *AutoTask) WithStaticIp(IPAddress string) *AutoTask {
 	return at
 }
 
-func (at *AutoTask) WithCommand(Command string) *AutoTask {
+func (at *AutoTask) WithCommand(Command []string) *AutoTask {
 	at.opt.Command = Command
 	return at
 }
