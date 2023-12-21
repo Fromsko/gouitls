@@ -21,21 +21,11 @@ jobs:
         with:
           go-version: 1.21 # 根据你的项目需要设置 Go 版本
 
-      - name: Get new version from file
-        id: get_new_version
-        run: |
-          current_dir=$(pwd)
-          echo "Current directory: ${current_dir}"
-          new_version=$(cat "${current_dir}/version.ini")
-          echo "new_version=${new_version}" >> $GITHUB_ENV
-          echo "New version: ${new_version}"
-        shell: bash
-
       - name: Create Git Tag
         id: create_git_tag
         run: |
           # 获取新的版本号
-          new_version="${{ steps.get_new_version.outputs.new_version }}"
+          new_version="${{ env.new_version }}"
 
           # 创建 Git 标签
           git tag -a "$new_version" -m "Version $new_version"
@@ -46,7 +36,7 @@ jobs:
       - name: Generate changelog
         id: generate_changelog
         run: |
-          new_version="${{ steps.get_new_version.outputs.new_version }}"
+          new_version="${{ env.new_version }}"
           changelog=$(git log ${new_version}..HEAD --oneline --pretty=format:"- %s")
           echo "changelog=${changelog}" >> $GITHUB_ENV
         shell: bash
@@ -57,7 +47,7 @@ jobs:
           echo "正在创建最新版本"
 
           echo "获取新的版本号"
-          new_version="${{ steps.get_new_version.outputs.new_version }}"
+          new_version="${{ env.new_version }}"
           echo "${new_version}"
 
           # 生成更新日志内容
