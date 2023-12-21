@@ -42,3 +42,7 @@ func (sp *BaseSpider) ParserHtml(tmp chan map[string]string) {
 		}
 	})
 }
+
+func EchoHi(){
+	fmt.Println("Hello World!")
+}
