@@ -2,6 +2,7 @@ package docker
 
 import (
 	"context"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -24,6 +25,7 @@ type Option struct {
 	Subnet         string            // 子网配置
 	Gateway        string            // 网关配置
 	Image          string            // Docker 镜像名称
+	Command        []string          // 命令参数
 	Env            []string          // 容器环境变量
 	PortMappings   map[string]string // 端口映射配置
 	ContainerName  string            // 容器名称
@@ -105,6 +107,11 @@ func (at *AutoTask) WithStaticIp(IPAddress string) *AutoTask {
 	return at
 }
 
+func (at *AutoTask) WithCommand(Command string) *AutoTask {
+	at.opt.Command = Command
+	return at
+}
+
 // 添加 WithVolumeMappings 方法用于设置数据卷映射
 func (at *AutoTask) WithVolumeMappings(volumeMappings []VolumeMapping) *AutoTask {
 	at.opt.VolumeMappings = volumeMappings
@@ -171,6 +178,62 @@ func (at *AutoTask) EchoError(name string, err error, flag bool) {
 	os.Exit(0)
 }
 
+// PullImage 拉取容器
+func (at *AutoTask) PullImage(imgName string) error {
+	if !strings.Contains(imgName, ":") {
+		imgName = imgName + ":latest"
+	}
+
+	out, err := at.cli.ImagePull(
+		at.ctx, imgName,
+		types.ImagePullOptions{},
+	)
+	if err != nil {
+		return err
+	}
+
+	defer func(out io.ReadCloser) {
+		_ = out.Close()
+	}(out)
+
+	_, _ = io.Copy(os.Stdout, out)
+
+	return nil
+}
+
+func (at *AutoTask) Start() (err error) {
+	if err = at.cli.ContainerStart(
+		at.ctx, at.opt.ContainerName,
+		types.ContainerStartOptions{},
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (at *AutoTask) Delete() (err error) {
+	if err = at.cli.ContainerRemove(
+		at.ctx, at.opt.ContainerName,
+		types.ContainerRemoveOptions{},
+	); err != nil {
+		return
+	}
+
+	return nil
+}
+
+func (at *AutoTask) Stop() (err error) {
+	if err = at.cli.ContainerStop(
+		at.ctx, at.opt.ContainerName,
+		container.StopOptions{},
+	); err != nil {
+		return
+	}
+
+	return nil
+}
+
 // Run 创建并运行 Docker 容器
 func (at *AutoTask) Run() {
 	// 如果不存在具有相同名称的网络，则创建新网络
@@ -195,6 +258,7 @@ func (at *AutoTask) Run() {
 	containerConfig := &container.Config{
 		Image: at.opt.Image,
 		Env:   at.opt.Env,
+		Cmd:   at.opt.Command,
 	}
 
 	// 创建容器的 VolumeConfig 配置
