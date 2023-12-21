@@ -60,10 +60,11 @@ jobs:
         id: create_release
         if: steps.version_changed.outputs.changed == 'true'
         run: |
-          echo "Creating GitHub release..."
+          echo "正在创建最新版本"
 
-          # 获取新的版本号
+          echo "获取新的版本号"
           new_version="${{ steps.get_new_version.outputs.new_version }}"
+          echo "${new_version}"
 
           # 生成更新日志内容
           changelog="${{ steps.generate_changelog.outputs.changelog }}"
