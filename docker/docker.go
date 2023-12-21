@@ -118,6 +118,26 @@ func (at *AutoTask) WithVolumeMappings(volumeMappings []VolumeMapping) *AutoTask
 	return at
 }
 
+func (at *AutoTask) DeleteCreatedContainer() {
+	listOptions := types.ContainerListOptions{
+		All: true, // 包括停止的容器
+	}
+
+	containers, err := at.cli.ContainerList(at.ctx, listOptions)
+	if err != nil {
+		log.Errorf("无法获取容器列表：%v", err) // 发生错误时返回 true
+	} else {
+		for _, container := range containers {
+			if container.Status == "Created" {
+				log.Warnf("删除指定容器 => %v", strings.Split(container.Names[0], "/")[1])
+				at.Delete(container.ID)
+			} else if strings.Contains(container.Status, "Exited") {
+				at.Start(container.ID)
+			}
+		}
+	}
+}
+
 // ContainerExists 检测是否存在指定容器名称
 func (at *AutoTask) ContainerExists(callBack func()) {
 	flag := true
@@ -201,9 +221,9 @@ func (at *AutoTask) PullImage(imgName string) error {
 	return nil
 }
 
-func (at *AutoTask) Start() (err error) {
+func (at *AutoTask) Start(cname string) (err error) {
 	if err = at.cli.ContainerStart(
-		at.ctx, at.opt.ContainerName,
+		at.ctx, cname,
 		types.ContainerStartOptions{},
 	); err != nil {
 		return err
@@ -212,9 +232,9 @@ func (at *AutoTask) Start() (err error) {
 	return nil
 }
 
-func (at *AutoTask) Delete() (err error) {
+func (at *AutoTask) Delete(cname string) (err error) {
 	if err = at.cli.ContainerRemove(
-		at.ctx, at.opt.ContainerName,
+		at.ctx, cname,
 		types.ContainerRemoveOptions{},
 	); err != nil {
 		return
