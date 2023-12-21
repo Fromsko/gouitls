@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+env:
+  new_version: v0.1.6
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -23,17 +27,14 @@ jobs:
       #   with:
       #     args: release
     
-      - name: 创建版本
-        run: |
-          git config --global user.email "1614355756@qq.com"
-          git config --global user.name "skong"
-          git remote set-url origin "https://github.com/Fromsko/gouitls.git"
-          git fetch origin
-          git tag ${{ env.new_version }}
-          git push origin ${{ env.new_version }} --force
-        env:
-          new_version: v0.1.6
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: 创建版本
+      #   run: |
+      #     git config --global user.email "1614355756@qq.com"
+      #     git config --global user.name "skong"
+      #     git remote set-url origin "https://github.com/Fromsko/gouitls.git"
+      #     git fetch origin
+      #     git tag ${{ env.new_version }}
+      #     git push origin ${{ env.new_version }} --force
 
       - name: 发布release
         uses: actions/create-release@v1
