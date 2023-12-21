@@ -1,6 +1,12 @@
 # gouitls
 一些开箱即用的小工具包
 
+## 安装
+
+```shell
+go get github.com/Fromsko/gouitls
+```
+
 ## 使用
 
 [`knet/kent.go`](./knet/kent.go)
