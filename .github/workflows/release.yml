@@ -23,6 +23,7 @@ jobs:
         run: |
           new_version=$(cat version)
           echo "new_version=${new_version}" >> $GITHUB_ENV
+          echo "New version: ${new_version}" # 添加这行打印新版本号
         shell: bash
 
       - name: Create Git Tag
