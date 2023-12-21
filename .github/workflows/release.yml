@@ -21,10 +21,11 @@ jobs:
       - name: Get new version from file
         id: get_new_version
         run: |
-          echo "${pwd}"
-          new_version=$(cat $pwd/version.ini)
+          current_dir=$(pwd)
+          echo "Current directory: ${current_dir}"
+          new_version=$(cat "${current_dir}/version.ini")
           echo "new_version=${new_version}" >> $GITHUB_ENV
-          echo "New version: ${new_version}" # 添加这行打印新版本号
+          echo "New version: ${new_version}"
         shell: bash
 
       - name: Create Git Tag
