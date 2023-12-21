@@ -74,7 +74,7 @@ func (f *CustomText) Format(entry *logrus.Entry) ([]byte, error) {
 	callerInfo := entry.Message
 
 	// 获取当前文件名和行号
-	_, file, line, ok := runtime.Caller(1)
+	_, file, line, ok := runtime.Caller(2)
 	if ok {
 		// 提取文件名并添加到日志消息
 		fileName := path.Base(file)
