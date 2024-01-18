@@ -73,11 +73,11 @@ func (f *CustomText) Format(entry *logrus.Entry) ([]byte, error) {
 	level := entry.Level.String()
 	callerInfo := entry.Message
 
-	// 获取当前文件名和行号(获取到上层栈堆信息)
-	_, file, line, ok := runtime.Caller(4)
+	// 获取当前文件名和行号(获取到当前栈堆信息)
+	_, file, line, ok := runtime.Caller(6)
 	if ok {
 		// 提取文件名并添加到日志消息
-		fileName := path.Base(file)
+		fileName := path.Join(path.Base(path.Dir(file)), path.Base(file))
 		callerInfo = fmt.Sprintf("%s:%d | %s", fileName, line, callerInfo)
 	}
 
