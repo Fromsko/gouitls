@@ -4,7 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
-
+	"crypto/sha256"
+	"encoding/hex"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 )
@@ -67,4 +68,13 @@ func GenUUID(username string) string {
 	ns := uuid.NameSpaceDNS
 	userUUID := uuid.NewSHA1(ns, []byte(username))
 	return userUUID.String()
+}
+
+// HashString 对内容进行 sha256
+func HashString(input string) string {
+	hasher := sha256.New()
+	hasher.Write([]byte(input))
+	hashedBytes := hasher.Sum(nil)
+	hashedString := hex.EncodeToString(hashedBytes)
+	return hashedString
 }
