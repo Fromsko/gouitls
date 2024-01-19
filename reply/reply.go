@@ -74,3 +74,40 @@ func Client(ctx *gin.Context, jm *JsonMsg, opts ...Option) {
 	// 返回 JSON 响应
 	ctx.JSON(statusCode, jm)
 }
+
+// Succeed 正确数据
+func Succeed(ctx *gin.Context, msg string, others ...gin.H) {
+	rt := gin.H{
+		"code": http.StatusOK,
+		"msg":  msg,
+	}
+
+	if len(others) != 0 {
+		for _, other := range others {
+			for k, v := range other {
+				rt[k] = v
+			}
+		}
+	}
+
+	ctx.JSON(http.StatusOK, rt)
+}
+
+// Failed 错误数据
+func Failed(ctx *gin.Context, msg, err string, others ...gin.H) {
+	rt := gin.H{
+		"code": http.StatusOK,
+		"msg":  msg,
+		"err":  err,
+	}
+
+	if len(others) != 0 {
+		for _, other := range others {
+			for k, v := range other {
+				rt[k] = v
+			}
+		}
+	}
+
+	ctx.JSON(rt["code"].(int), rt)
+}
