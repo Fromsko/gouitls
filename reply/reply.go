@@ -96,7 +96,7 @@ func Succeed(ctx *gin.Context, msg string, others ...gin.H) {
 // Failed 错误数据
 func Failed(ctx *gin.Context, msg, err string, others ...gin.H) {
 	rt := gin.H{
-		"code": http.StatusOK,
+		"code": http.StatusBadRequest,
 		"msg":  msg,
 		"err":  err,
 	}
