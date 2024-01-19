@@ -46,16 +46,17 @@ func WithFlag(is bool) Option {
 }
 
 // ReplyData 定义数据返回格式
-func Client(ctx *gin.Context, opts ...Option) {
-	c := &JsonMsg{}
-
-	for _, opt := range opts {
-		opt(*c)
+func Client(ctx *gin.Context, jm *JsonMsg, opts ...Option) {
+	if jm == nil {
+		jm = &JsonMsg{}
+		for _, opt := range opts {
+			opt(*jm)
+		}
 	}
 
-	if c.flag {
-		ctx.JSON(c.Code, c)
+	if jm.flag {
+		ctx.JSON(jm.Code, jm)
 	} else {
-		ctx.JSON(http.StatusOK, c)
+		ctx.JSON(http.StatusOK, jm)
 	}
 }
