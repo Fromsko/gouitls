@@ -17,24 +17,31 @@ type JsonMsg struct {
 // Option 函数选项式
 type Option func(JsonMsg)
 
-// WithMsg 返回数据
+// WithMsg 初始化数据
 func WithMsg(msg string) Option {
 	return func(jm JsonMsg) {
 		jm.Msg = msg
 	}
 }
 
-// WithErr 返回错误
+// WithErr 初始化错误
 func WithErr(err string) Option {
 	return func(jm JsonMsg) {
 		jm.Err = err
 	}
 }
 
-// WithCode 返回状态码
+// WithCode 初始化状态码
 func WithCode(code int) Option {
 	return func(jm JsonMsg) {
 		jm.Code = code
+	}
+}
+
+// WithFlag 初始化标志位
+func WithFlag(is bool) Option {
+	return func(jm JsonMsg) {
+		jm.flag = is
 	}
 }
 
