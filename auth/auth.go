@@ -1,11 +1,12 @@
 package auth
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"time"
-	"crypto/sha256"
-	"encoding/hex"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 )
@@ -17,13 +18,14 @@ type SubscriberAuth struct {
 }
 
 // GenToken 生成JWT token
-func (sa *SubscriberAuth) GenToken(username string) (token string, err error) {
+func (sa *SubscriberAuth) GenToken(role, username string) (token string, err error) {
 	// 创建一个新的令牌对象
 	tk := jwt.New(jwt.SigningMethodHS256)
 
 	// 设置令牌的claims
 	claims := tk.Claims.(jwt.MapClaims)
 	claims["username"] = username
+	claims["role"] = role
 	claims["exp"] = time.Now().Add(sa.Expiration).Unix()
 
 	// 生成令牌
