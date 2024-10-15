@@ -145,6 +145,10 @@ go get github.com/Fromsko/gouitls
 go get github.com/Fromsko/gouitls
 ```
 
+`展示`
+![Display](docs/recording.gif)
+
+
 `使用`
 ```go
 package main
