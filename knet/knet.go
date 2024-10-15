@@ -39,26 +39,6 @@ func (s *SendRequest) Send(callBack func(resp []byte, cookies []*http.Cookie, er
 	}
 }
 
-func (S *SendRequest) SaveFile(fileName, method string, body []byte) error {
-	// 判断存储模式
-	switch method {
-	case "html":
-		fileName += ".html"
-	case "jpg":
-		fileName += ".jpg"
-	default:
-		fileName += "." + method
-	}
-
-	// 写入文件
-	if err := os.WriteFile(fileName, body, 0644); err != nil {
-		return err
-	} else {
-		color.Blue("File " + fileName + " is Saved!")
-	}
-	return nil
-}
-
 func WebGet(urlStr string, headers map[string]string, cookies []*http.Cookie) ([]byte, []*http.Cookie, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", urlStr, nil)
@@ -131,4 +111,25 @@ func WebPost(urlStr string, headers map[string]string, cookies []*http.Cookie, f
 	}
 
 	return body, resp.Cookies(), nil
+}
+
+
+func (S *SendRequest) SaveFile(fileName, method string, body []byte) error {
+	// 判断存储模式
+	switch method {
+	case "html":
+		fileName += ".html"
+	case "jpg":
+		fileName += ".jpg"
+	default:
+		fileName += "." + method
+	}
+
+	// 写入文件
+	if err := os.WriteFile(fileName, body, 0644); err != nil {
+		return err
+	} else {
+		color.Blue("File " + fileName + " is Saved!")
+	}
+	return nil
 }

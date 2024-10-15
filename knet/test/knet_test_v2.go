@@ -1,13 +1,15 @@
-package knet
+package test
 
 import (
 	"net/http"
 	"testing"
+
+	"github.com/Fromsko/gouitls/knet"
 )
 
-func TestSendRequest_Send(t *testing.T) {
+func TestSendRequest_Send_V2(t *testing.T) {
 	// 创建一个 SendRequest 实例，用于测试 Send 方法
-	req := SendRequest{
+	req := knet.SendRequest{
 		Method:   "GET",
 		FetchURL: "https://example.com",
 	}
@@ -23,9 +25,9 @@ func TestSendRequest_Send(t *testing.T) {
 	req.Send(callback)
 }
 
-func TestSendRequest_SaveFile(t *testing.T) {
+func TestSendRequest_SaveFile_V2(t *testing.T) {
 	// 创建一个 SendRequest 实例，用于测试 SaveFile 方法
-	req := SendRequest{}
+	req := knet.SendRequest{}
 
 	// 模拟保存文件
 	fileName := "testfile.html"
