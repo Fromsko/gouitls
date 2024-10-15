@@ -15,9 +15,6 @@ import (
 // Option 类型，表示可变参数的配置函数
 type Option func(*Request)
 
-// 定义一个回调函数类型，用于执行请求
-type RequestFunc func() (resp *http.Response, body []byte, err error)
-
 // IRequest 接口，定义请求的行为
 type IRequest interface {
 	WithURL(url string) IRequest
@@ -27,7 +24,7 @@ type IRequest interface {
 	WithProxy(url string) IRequest
 	WithCookies(cookies []*http.Cookie) IRequest
 	WithHeaders(headers map[string]string) IRequest
-	Send(callBack func(IResponse, error))
+	Send(callBack func(resp IResponse, err error))
 }
 
 // IResponse 接口，定义响应的行为
@@ -164,8 +161,8 @@ func (r *Request) Send(callBack func(resp IResponse, err error)) {
 
 	callBack(
 		&Response{
-			body: body,
-			resp: resp,
+			Body: body,
+			Resp: resp,
 		},
 		err,
 	)
@@ -173,30 +170,30 @@ func (r *Request) Send(callBack func(resp IResponse, err error)) {
 
 // Response 实现 IResponse 接口
 type Response struct {
-	resp *http.Response
-	body []byte
+	Resp *http.Response
+	Body []byte
 }
 
 func (r *Response) StatusCode() int {
-	return r.resp.StatusCode
+	return r.Resp.StatusCode
 }
 
 func (r *Response) Json() *gjson.Result {
-	jsonResult := gjson.ParseBytes(r.body)
+	jsonResult := gjson.ParseBytes(r.Body)
 	return &jsonResult
 }
 
 func (r *Response) Text() string {
-	return string(r.body)
+	return string(r.Body)
 }
 
 func (r *Response) Bytes() []byte {
-	return r.body
+	return r.Body
 }
 
 func (r *Response) RaiseCode(code int) error {
-	if r.resp.StatusCode == code {
-		return fmt.Errorf("Error: StatusCode %d", code)
+	if r.Resp.StatusCode == code {
+		return fmt.Errorf("error: StatusCode %d", code)
 	}
 	return nil
 }
@@ -205,7 +202,7 @@ func (r *Response) WriteFile(fileName, perm, dir string) error {
 	if dir != "" {
 		fileName = dir + "/" + fileName
 	}
-	err := os.WriteFile(fileName, r.body, 0644)
+	err := os.WriteFile(fileName, r.Body, 0644)
 	if err != nil {
 		return err
 	}
@@ -214,7 +211,7 @@ func (r *Response) WriteFile(fileName, perm, dir string) error {
 
 func (r *Response) WriteJson(fileName, perm, dir string) error {
 	var jsonBody bytes.Buffer
-	if err := json.Indent(&jsonBody, r.body, "", "  "); err != nil {
+	if err := json.Indent(&jsonBody, r.Body, "", "  "); err != nil {
 		return err
 	}
 	return r.WriteFile(fileName, perm, dir)
