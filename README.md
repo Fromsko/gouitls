@@ -136,3 +136,40 @@ go get github.com/Fromsko/gouitls
 	}
 
 	```
+
+## V2 版本
+> 推荐使用`V2`版本, 支持函数调用和链式调用
+
+`安装`
+```shell
+go get github.com/Fromsko/gouitls
+```
+
+`使用`
+```go
+package main
+
+import (
+	"fmt"
+	"net/http"
+
+	. "github.com/Fromsko/gouitls/knet/v2"
+)
+
+func main() {
+	spider := NewRequest(
+		WithMethod(http.MethodGet),
+		WithProxy("http://127.0.0.1:7890"),
+		WithURL("https://uapis.cn/api/hotlist?type=history"),
+	)
+	spider.Send(func(resp IResponse, err error) {
+		fmt.Printf("resp.Json(): %v\n", resp.Json())
+		fmt.Printf("resp.StatusCode(): %v\n", resp.StatusCode())
+		resp.WriteJson(
+			"history.json",
+			"0644",
+			"",
+		)
+	})
+}
+```
