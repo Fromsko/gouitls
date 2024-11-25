@@ -1,6 +1,8 @@
 module github.com/Fromsko/gouitls
 
-go 1.20
+go 1.22
+
+toolchain go1.23.1
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -10,6 +12,8 @@ require (
 	github.com/go-kratos/kratos/v2 v2.7.2
 	github.com/gocolly/colly v1.2.0
 	github.com/google/uuid v1.4.0
+	github.com/mattn/go-sqlite3 v1.14.24
+	github.com/nalgeon/redka v0.5.3
 	github.com/sirupsen/logrus v1.9.3
 	gopkg.in/fsnotify.v1 v1.4.7
 	gorm.io/driver/mysql v1.5.2
